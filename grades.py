@@ -1,3 +1,40 @@
+"""
+A script for visualizing grade distributions across various courses from provided CSV data.
+
+This script, when executed, reads a CSV file containing students' letter grades for multiple
+courses, converts these letter grades to numerical grade points,
+and then visualizes the distribution of these grades. It supports a range of letter grades
+from 'A+' through 'E'. Unrecognized grades are handled gracefully.
+The script also illustrates the application of statistical distributions
+to the grade data of a specific course (STATS250), showing both normal and T-distributions for a
+sample of grades.
+
+Requirements:
+- Python 3.x
+- Libraries: matplotlib, pandas, seaborn, numpy, scipy
+
+The script contains two main functions:
+1. `letter_to_points`: Converts letter grades into numerical
+grade points based on a predefined scale.
+2. `grade_distribution`: Reads the grade data from the specified CSV file, processes this data to
+   calculate grade points, and then plots the grade distribution for each of six predefined courses.
+   Additionally, for the STATS250 course, it overlays a normal distribution and a T-distribution
+   on the histogram of grades.
+
+Usage:
+To run this script, ensure you have the required Python version and libraries installed.
+Then, execute the script from the command line, providing the path to your grade data CSV file
+as an argument:
+
+    python this_script.py path/to/grade_data.csv
+
+The CSV file should include columns named according to the courses (e.g., 'STATS250_grade') and
+contain letter grades for students in those columns.
+
+The script outputs a series of plots visualizing the grade distributions,
+with additional statistical distribution overlays for the STATS250 course.
+"""
+
 import sys
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -35,42 +72,51 @@ def letter_to_points(letter_grade):
 
     return grade_mapping.get(letter_grade, np.nan)
 
+
 def grade_distribution(grade_data):
     """
     Visualizes the grade distribution for specified courses using grade data from a CSV file.
 
-    This function reads grade data for six courses from a specified CSV file, converts letter grades to grade points,
-    and plots the distribution of grades for each course. For one course (STATS250), it also overlays the plot with
-    the distribution of a random sample of 100 grades using both a normal and a T-distribution.
+    This function reads grade data for six courses from a specified CSV file,
+    converts letter grades to grade points, and plots the distribution of grades for each course.
+    For one course (STATS250), it also overlays the plot with the distribution of a random sample
+    of 100 grades using both a normal and a T-distribution.
 
     Parameters:
-    - grade_data (str): Path to the CSV file containing grade data. The CSV should include columns for courses
-      ('STATS250_grade', 'DATASCI306_grade', 'MATH217_grade', 'ENGLISH125_grade', 'ECON101_grade', 'EECS545_grade')
+    - grade_data (str): Path to the CSV file containing grade data.
+    The CSV should include columns for courses
+      ('STATS250_grade', 'DATASCI306_grade', 'MATH217_grade',
+      'ENGLISH125_grade', 'ECON101_grade', 'EECS545_grade')
       with letter grades.
 
-    The function converts letter grades to grade points based on a predefined scale, plots histograms for the grade
-    distributions of the courses, and overlays these with the appropriate distribution curves. It generates a 3x2 subplot
+    The function converts letter grades to grade points based on a
+    predefined scale, plots histograms for the grade distributions of the courses,
+    and overlays these with the appropriate distribution curves. It generates a 3x2 subplot
     grid to visualize these distributions for the six courses.
 
     Note:
-    - The function depends on pandas for data handling, matplotlib for plotting, and scipy for statistical functions.
-    - `letter_to_points` function must be defined in the same script or notebook to convert letter grades to points.
+    - The function depends on pandas for data handling, matplotlib for plotting,
+    and scipy for statistical functions.
+    - `letter_to_points` function must be defined in the same script or
+    notebook to convert letter grades to points.
 
     Outputs:
-    - A matplotlib figure with a 3x2 grid of subplots, each showing the grade distribution for one of the six specified courses.
-      For STATS250, the distribution of a sample of 100 grades is also shown with normal and T-distribution curves.
+    - A matplotlib figure with a 3x2 grid of subplots, each showing the
+    grade distribution for one of the six specified courses.
+      For STATS250, the distribution of a sample of 100 grades is also
+      shown with normal and T-distribution curves.
     """
     df = pd.read_csv(grade_data)
-    
+
     # Add a new column for each course with _grade_points at the end
     for course in ['STATS250', 'DATASCI306', 'MATH217', 'ENGLISH125', 'ECON101', 'EECS545']:
         df[course + '_grade_points'] = df[course + '_grade'].apply(letter_to_points)
-    
+
     # Create plot
-    fig, axs = plt.subplots(3, 2, figsize=(15, 10))
+    axs = plt.subplots(3, 2, figsize=(15, 10))[1]
     axs = axs.flatten()  # Flatten the array to make it easier to index
     courses = ['STATS250', 'DATASCI306', 'MATH217', 'ENGLISH125', 'ECON101', 'EECS545']
-    
+
     # Iterate through courses and create graph
     for i, course in enumerate(courses):
         course_grades = df[course + '_grade_points'].dropna()
@@ -79,22 +125,26 @@ def grade_distribution(grade_data):
         std = course_grades.std()
 
         sns.histplot(course_grades, bins=30, kde=False, ax=axs[i], stat='density', legend=False)
-        
-        x_values = np.linspace(mean - 4*std, mean + 4*std, 200)
-        axs[i].plot(x_values, norm.pdf(x_values, mean, std), label=f'Normal Dist, µ={mean:.2f}, σ={std:.2f}')
-        
+
+        x_values = np.linspace(mean - 4 * std, mean + 4 * std, 200)
+        axs[i].plot(x_values, norm.pdf(x_values, mean, std),
+                    label=f'Normal Dist, µ={mean:.2f}, σ={std:.2f}')
+
         if course == 'STATS250':
             sample_grades = course_grades.sample(100, random_state=42)
             sample_mean = sample_grades.mean()
             sample_std = sample_grades.std(ddof=1)
-            axs[i].plot(x_values, t.pdf(x_values, df=len(sample_grades)-1, loc=sample_mean, scale=sample_std), label=f'T-Dist, µ={sample_mean:.2f}, σ={sample_std:.2f}')
-        
+            axs[i].plot(x_values, t.pdf(x_values, df=len(sample_grades) - 1,
+                                        loc=sample_mean, scale=sample_std),
+                        label=f'T-Dist, µ={sample_mean:.2f}, σ={sample_std:.2f}')
+
         axs[i].legend(title=f"{course}, n={n_students}")
         axs[i].set_title(f"Grade Distribution for {course}")
-    
+
     plt.tight_layout()
 
     plt.show()
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
