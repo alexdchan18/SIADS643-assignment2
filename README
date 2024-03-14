@@ -1,0 +1,21 @@
+# Grade Distribution Visualization Script
+
+## Introduction
+
+This Python script provides a comprehensive analysis and visualization of grade distributions across multiple courses. It reads grade data from a specified CSV file, converts letter grades to numerical grade points, and visualizes the distribution of grades for each course. For one specific course, `STATS250`, it further analyzes the distribution by overlaying a sample of grades with both normal and T-distributions. This script is an invaluable tool for educators, students, and academic researchers interested in understanding grade trends and distributions in educational data.
+
+## Environment Setup
+
+### Required Packages
+
+To run this script, you will need Python installed on your system along with the following Python libraries:
+- matplotlib
+- pandas
+- seaborn
+- numpy
+- scipy
+
+You can install these packages using pip by running the following command:
+
+```bash
+pip install matplotlib pandas seaborn numpy scipy
