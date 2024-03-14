@@ -36,15 +36,42 @@ def letter_to_points(letter_grade):
     return grade_mapping.get(letter_grade, np.nan)
 
 def grade_distribution(grade_data):
+    """
+    Visualizes the grade distribution for specified courses using grade data from a CSV file.
+
+    This function reads grade data for six courses from a specified CSV file, converts letter grades to grade points,
+    and plots the distribution of grades for each course. For one course (STATS250), it also overlays the plot with
+    the distribution of a random sample of 100 grades using both a normal and a T-distribution.
+
+    Parameters:
+    - grade_data (str): Path to the CSV file containing grade data. The CSV should include columns for courses
+      ('STATS250_grade', 'DATASCI306_grade', 'MATH217_grade', 'ENGLISH125_grade', 'ECON101_grade', 'EECS545_grade')
+      with letter grades.
+
+    The function converts letter grades to grade points based on a predefined scale, plots histograms for the grade
+    distributions of the courses, and overlays these with the appropriate distribution curves. It generates a 3x2 subplot
+    grid to visualize these distributions for the six courses.
+
+    Note:
+    - The function depends on pandas for data handling, matplotlib for plotting, and scipy for statistical functions.
+    - `letter_to_points` function must be defined in the same script or notebook to convert letter grades to points.
+
+    Outputs:
+    - A matplotlib figure with a 3x2 grid of subplots, each showing the grade distribution for one of the six specified courses.
+      For STATS250, the distribution of a sample of 100 grades is also shown with normal and T-distribution curves.
+    """
     df = pd.read_csv(grade_data)
     
+    # Add a new column for each course with _grade_points at the end
     for course in ['STATS250', 'DATASCI306', 'MATH217', 'ENGLISH125', 'ECON101', 'EECS545']:
         df[course + '_grade_points'] = df[course + '_grade'].apply(letter_to_points)
     
+    # Create plot
     fig, axs = plt.subplots(3, 2, figsize=(15, 10))
     axs = axs.flatten()  # Flatten the array to make it easier to index
     courses = ['STATS250', 'DATASCI306', 'MATH217', 'ENGLISH125', 'ECON101', 'EECS545']
     
+    # Iterate through courses and create graph
     for i, course in enumerate(courses):
         course_grades = df[course + '_grade_points'].dropna()
         n_students = len(course_grades)
