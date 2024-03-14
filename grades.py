@@ -1,3 +1,4 @@
+import sys
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -5,6 +6,25 @@ import numpy as np
 from scipy.stats import norm, t
 
 def letter_to_points(letter_grade):
+    """
+    Converts a letter grade into its equivalent grade points.
+
+    This function maps letter grades commonly used in educational institutions
+    to a numerical value representing grade points. It covers grades from 'A+'
+    through 'E', with 'A+' being the highest and 'E' being the lowest. Any
+    letter grade not recognized is returned as NaN (Not a Number).
+
+    Parameters
+    ----------
+    letter_grade : str
+        A string representing the letter grade to be converted into grade points.
+
+    Returns
+    -------
+    float
+        The grade points corresponding to the input letter grade. Returns NaN if
+        the letter grade is not recognized.
+    """
     grade_mapping = {
         'A+': 4.3, 'A': 4.0, 'A-': 3.7,
         'B+': 3.3, 'B': 3.0, 'B-': 2.7,
@@ -12,10 +32,11 @@ def letter_to_points(letter_grade):
         'D+': 1.3, 'D': 1.0, 'D-': 0.7,
         'E': 0.0
     }
+
     return grade_mapping.get(letter_grade, np.nan)
 
-def grade_distribution():
-    df = pd.read_csv('assets/assets/class_grades.csv')
+def grade_distribution(grade_data):
+    df = pd.read_csv(grade_data)
     
     for course in ['STATS250', 'DATASCI306', 'MATH217', 'ENGLISH125', 'ECON101', 'EECS545']:
         df[course + '_grade_points'] = df[course + '_grade'].apply(letter_to_points)
@@ -48,4 +69,8 @@ def grade_distribution():
 
     plt.show()
 
-grade_distribution()
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print('Usage: python grades.py <input_file>')
+    else:
+        grade_distribution(sys.argv[1])
